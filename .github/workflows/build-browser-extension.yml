@@ -107,10 +107,11 @@ jobs:
 
       - name: Upload file to release
         if: ${{ needs.get-data.outputs.tag }}
-        uses: svenstaro/upload-release-action@v2
+        uses: github.event.client_payload.
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/apps/browser-extension.zip
           asset_name: browser-extension.zip
           tag: ${{ needs.get-data.outputs.tag }}
           overwrite: false
+          repo_name: ${{ secrets.REPOSITORY }}
