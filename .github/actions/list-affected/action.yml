@@ -1,0 +1,16 @@
+name: 'List affected'
+description: 'Lists affected apps'
+author: 'Przemysław Żydek'
+inputs:
+  base:
+    description: 'Base branch to compare with'
+    required: true
+  head:
+    description: 'Head branch to compare with'
+    required: true
+outputs:
+  affected:
+    description: 'Equals to 1 if app is affected, 0 otherwise'
+runs:
+  using: 'node16'
+  main: 'listAffected.js'

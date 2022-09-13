@@ -1,0 +1,16 @@
+name: 'Get release tag'
+description: 'Returns release tag (if exists)'
+author: 'Przemysław Żydek'
+inputs:
+  ghRef:
+    description: 'Github ref'
+    required: false
+  tagFromInput:
+    description: 'Tag provided in variable (if workflow was launched manually).'
+    required: false
+outputs:
+  tag:
+    description: 'Release tag'
+runs:
+  using: 'node16'
+  main: 'tagProvider.js'
