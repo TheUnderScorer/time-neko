@@ -43,12 +43,12 @@ jobs:
         uses: ./.github/actions/env-provider
         with:
           tag: ${{ steps.get_tag.outputs.tag }}
-          envFromInput: ${{ github.event.client_payload.github.inputs.enviroment }}
+          envFromInput: ${{ github.event.client_payload.enviroment }}
       - name: Output vars
         run: |
           echo "Env: ${{ steps.get_env.outputs.env }}"
           echo "Ref: ${{ github.event.client_payload.github.ref }}"
-          echo "Input env: ${{ github.event.client_payload.github.inputs.enviroment }}"
+          echo "Input env: ${{ github.event.client_payload.enviroment }}"
 
   deploy-website:
     name: Deploy website

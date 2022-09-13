@@ -32,14 +32,14 @@ jobs:
         uses: ./.github/actions/tag-provider
         with:
           ghRef: ${{ github.event.client_payload.github.ref }}
-          tagFromInput: ${{ github.event.client_payload.github.inputs.tag }}
+          tagFromInput: ${{ github.event.client_payload.tag }}
 
       - name: Get env
         id: get_env
         uses: ./.github/actions/env-provider
         with:
           tag: ${{ steps.get_tag.outputs.tag }}
-          envFromInput: ${{ github.event.client_payload.github.inputs.enviroment }}
+          envFromInput: ${{ github.event.client_payload.enviroment }}
 
       - name: Output vars
         run: |
