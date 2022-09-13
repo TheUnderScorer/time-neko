@@ -1,0 +1,207 @@
+name: Build electron binaries
+
+on:
+  repository_dispatch:
+    types: [ build-electron ]
+
+jobs:
+  get-data:
+    name: Get data
+    if: ${{ github.event.client_payload.github.event_name != 'create' || contains(github.event.client_payload.github.ref, 'desktop-v') }}
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+      env: ${{ steps.get_env.outputs.env }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
+
+      - name: Get tag
+        id: get_tag
+        uses: ./.github/actions/tag-provider
+        with:
+          ghRef: ${{ github.event.client_payload.github.ref }}
+          tagFromInput: ${{ github.event.client_payload.github.inputs.tag }}
+
+      - name: Get env
+        id: get_env
+        uses: ./.github/actions/env-provider
+        with:
+          tag: ${{ steps.get_tag.outputs.tag }}
+          envFromInput: ${{ github.event.client_payload.github.inputs.enviroment }}
+
+      - name: Output vars
+        run: |
+          echo "Tag: ${{ steps.get_tag.outputs.tag }}"
+          echo "Env: ${{ steps.get_env.outputs.env }}"
+          echo "Ref: ${{ github.event.client_payload.github.ref }}"
+
+  build-electron:
+    name: Build electron binaries
+    needs:
+      - get-data
+    environment: ${{ needs.get-data.outputs.env }}
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest, macos-arm64]
+        arch: [x64, arm64]
+        exclude:
+          - { os: macos-latest, arch: arm64 }
+          - { os: windows-latest, arch: arm64 }
+          - { os: macos-arm64, arch: x64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check actor
+        if: ${{ matrix.os == 'macos-arm64' && env.GITHUB_ACTOR == 'TheUnderScorer' }}
+        run: exit 1
+
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        if: ${{ matrix.arch != 'arm64' && matrix.os != 'macos-arm64' }}
+        with:
+          node-version: '16.13.2'
+
+      - name: Setup keychain
+        if: ${{ matrix.os == 'macos-latest' && matrix.arch == 'x64' }}
+        env:
+          KEYCHAIN_PATH: ./keychain
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          ENCODED_CERT: ${{ secrets.MACOS_BASE64_CERTIFICATE }}
+          ENCODED_INSTALLER_CERT: ${{ secrets.MACOS_BASE64_INSTALLER_CERTIFICATE }}
+        run: |
+          echo $KEYCHAIN_PATH
+          mkdir $KEYCHAIN_PATH
+          echo -n "$ENCODED_CERT" | base64 --decode --output Cert.p12
+          echo -n "$ENCODED_INSTALLER_CERT" | base64 --decode --output InstallerCert.p12
+
+          security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security set-keychain-settings -lut 90000000 $KEYCHAIN_PATH
+          security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security import Cert.p12 -P $KEYCHAIN_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -T /usr/bin/codesign
+          security import InstallerCert.p12 -P $KEYCHAIN_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security default-keychain -s $KEYCHAIN_PATH
+          security find-certificate -c "Developer ID Application: Przemysaw Zydek (24P5W7TK47)" -p >> ./cert.pem
+          security find-certificate -c "Developer ID Installer: Przemysaw Zydek (24P5W7TK47)" -p >> ./installer_cert.pem
+          sudo security authorizationdb write com.apple.trust-settings.admin allow
+          sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./cert.pem
+          sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
+          security find-identity -p codesigning
+
+      - name: Cache
+        id: 'npm-cache'
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: nodemodules-${{ matrix.os }}-${{ matrix.arch }}-build-electron-${{ hashFiles('package-lock.json') }}
+          restore-keys: nodemodules-${{ matrix.os }}-${{ matrix.arch }}-build-electron
+
+      - name: Install npm dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Install other dependencies
+        run: npm run preinstall && npm install --prefix .github/actions
+
+      - name: Build tools
+        run: npm run build:tools
+
+        # Special build with arch -arm64 prefix on macos-arm64 macbook pro
+      - name: Build deps (arm64 macos)
+        if: ${{ matrix.os == 'macos-arm64' }}
+        run: arch -arm64 npm run rebuild:arm64
+
+      - name: Setup ubuntu deps
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64' }}
+        run: sudo apt-get install --no-install-recommends -y libc6-dev-arm64-cross linux-libc-dev-arm64-cross g++-aarch64-linux-gnu
+
+      - name: Create .env file
+        run: |
+          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
+          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> apps/electron/main/.env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
+          echo "API_URL=${{ secrets.API_URL }}" >> apps/electron/main/.env
+          echo "MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/electron/main/.env
+          echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
+          echo "WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> apps/electron/main/.env
+          echo "NX_WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> .env
+
+      - name: Pack mac x64
+        if: ${{ matrix.arch == 'x64' && matrix.os == 'macos-latest' }}
+        run: npx nx run electron:make --arch=x64 --platform=darwin --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+      - name: Pack mac arm64
+        if: ${{ matrix.arch == 'arm64' && matrix.os == 'macos-arm64' }}
+        run: arch -arm64 npx nx run electron:make --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+      - name: Pack linux x64
+        if: ${{ matrix.arch == 'x64' && matrix.os == 'ubuntu-latest' }}
+        run: npx nx run electron:make --arch=x64 --platform=linux --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+
+      - name: Set up Docker Buildx
+        if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+
+      - name: Pack linux arm64
+        if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
+        run: docker compose up packager-arm64-linux
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+
+      - name: Pack windows x64
+        if: ${{ matrix.arch == 'x64' && matrix.os == 'windows-latest' }}
+        run: npx nx run electron:make --arch=x64 --platform=win32 --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+
+      - name: Pack windows arm64
+        if: ${{ matrix.arch == 'arm64' && matrix.os == 'windows-latest' }}
+        run: npm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=win32 --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/apps/electron/main/out
+
+      - name: Publish
+        if: ${{ needs.get-data.outputs.tag }}
+        run: npx nx run electron:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          TAG_NAME: ${{ needs.get-data.outputs.tag }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}

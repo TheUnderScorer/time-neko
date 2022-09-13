@@ -1,0 +1,110 @@
+name: Deploy web-app
+on:
+  repository_dispatch:
+    types: [ deploy-web-app ]
+  workflow_dispatch:
+    inputs:
+      enviroment:
+        description: Environment to deploy to
+        required: true
+        type: environment
+
+jobs:
+  get-data:
+    name: Get data
+    if: ${{ github.event.client_payload.github.event_name != 'create' || contains(github.event.client_payload.github.ref, 'web-app-v') }}
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.get_env.outputs.env }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
+
+      - name: Get tag
+        id: get_tag
+        uses: ./.github/actions/tag-provider
+        with:
+          ghRef: ${{ github.event.client_payload.github.ref }}
+
+      - name: Get env
+        id: get_env
+        uses: ./.github/actions/env-provider
+        with:
+          tag: ${{ steps.get_tag.outputs.tag }}
+          envFromInput: ${{ github.event.client_payload.github.inputs.enviroment }}
+      - name: Output vars
+        run: |
+          echo "Env: ${{ steps.get_env.outputs.env }}"
+          echo "Ref: ${{ github.event.client_payload.github.ref }}"
+          echo "Input env: ${{ github.event.client_payload.github.inputs.enviroment }}"
+
+  deploy-web-app:
+    name: Deploy web-app
+    needs:
+      - get-data
+    environment: ${{ needs.get-data.outputs.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create .env file
+        run: |
+          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
+          echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
+          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+          echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
+          echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> .env
+          echo "NX_WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> .env
+          echo "NX_RECAPTCHA_KEY=${{ secrets.RECAPTCHA_KEY }}" >> .env
+
+      - name: Build web app
+        run: npx nx build web-app-worker --production --skip-nx-cache
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
+
+      - uses: amondnet/vercel-action@v20 #deploy
+        name: Deploy to production
+        if: ${{ needs.get-data.outputs.env == 'production' }}
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
+          vercel-args: '--prod' #Optional
+          vercel-org-id: ${{ secrets.ORG_ID}} #Required
+          vercel-project-id: ${{ secrets.WEB_APP_PROJECT_ID}} #Required
+          alias-domains: |
+            app.time-neko.com
+
+      - uses: amondnet/vercel-action@v20 #deploy
+        name: Deploy to staging
+        if: ${{ needs.get-data.outputs.env == 'staging' }}
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
+          vercel-org-id: ${{ secrets.ORG_ID}} #Required
+          vercel-project-id: ${{ secrets.WEB_APP_PROJECT_ID}} #Required
+          alias-domains: |
+            staging-app.time-neko.com
