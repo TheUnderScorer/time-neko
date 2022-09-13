@@ -86,3 +86,306 @@ jobs:
           AUTO_RUN_WORK: false
           AUTO_RUN_BREAK: false
           DB_ENGINE: better-sqlite3
+
+  e2e-website:
+    name: Website e2e tests
+    runs-on: ubuntu-latest
+    if: ${{ fromJSON(needs.get-affected.outputs.affected).website }}
+    needs:
+      - get-affected
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Cache
+        uses: actions/cache@v2
+        id: npm-cache
+        with:
+          path: node_modules
+          key: nodemodules-e2e-website-${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: nodemodules-e2e-website-${{ matrix.os }}-
+
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Setup playwright and serverless
+        run: npx playwright install-deps && npm i serverless@3 -g && npx playwright install
+
+      - name: Create .env file
+        run: |
+          echo "NX_ALLOW_PRERELEASES=true" >> .env
+          echo "NX_API_URL=http://localhost:3000/development" >> .env
+          echo "NX_APP_URL=http://localhost:4202/development" >> .env
+          echo "GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
+
+      - name: Start lambdas
+        run: npx nx serve lambdas &
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Build website
+        run: npx nx build website --production
+
+      - name: Run tests
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: npx nx run website-e2e:e2e
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: trace-website
+          path: test-results
+
+  e2e-browser-extension:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest']
+    name: Browser Extension e2e tests
+    runs-on: ${{ matrix.os }}
+    if: ${{ fromJSON(needs.get-affected.outputs.affected).browser-extension }}
+    needs:
+      - get-affected
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup playwright
+        run: npx playwright install-deps && npx playwright install
+
+      - name: Create .env file
+        run: |
+          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
+          echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
+          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+
+      - name: Build extension
+        run: npx nx build browser-extension --production --skip-nx-cache
+
+      - name: Run headless test
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: npx nx run browser-extension-e2e:e2e --skip-nx-cache
+
+      - name: Upload Artifact
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: browser-extension
+          path: dist/apps/browser-extension
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: test-artifact-${{ matrix.os }}-browser-extension
+          path: artifacts
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: browser-contexts
+          path: apps/browser-extension-e2e/src/contexts/**/chrome_debug.log
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: trace-${{ matrix.os }}-browser-extension
+          path: test-results
+
+  e2e-web-app:
+    name: Web App e2e tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    if: ${{ fromJSON(needs.get-affected.outputs.affected).web-app }}
+    needs:
+      - get-affected
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup playwright
+        run: npx playwright install-deps && npx playwright install
+
+      - name: Create .env file
+        run: |
+          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
+          echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
+          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+          echo "NX_DISABLE_SHARED_WORKER=true" >> .env
+          echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
+
+      - name: Build web app
+        run: npx nx build web-app-worker --production --skip-nx-cache
+
+      - name: Run test
+        run: npx nx run web-app-e2e:e2e --skip-nx-cache
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-artifact-web-app
+          path: artifacts
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: trace-${{ matrix.os }}-web-app
+          path: apps/web-app/test-results
+
+  e2e-electron:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    name: Electron e2e tests
+    runs-on: ${{ matrix.os }}
+    if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
+    needs:
+      - get-affected
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Setup keychain
+        if: ${{ matrix.os == 'macos-latest' }}
+        env:
+          KEYCHAIN_PATH: ./keychain
+          KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+          ENCODED_CERT: ${{ secrets.MACOS_BASE64_CERTIFICATE }}
+          ENCODED_INSTALLER_CERT: ${{ secrets.MACOS_BASE64_INSTALLER_CERTIFICATE }}
+        run: |
+          echo $KEYCHAIN_PATH
+          mkdir $KEYCHAIN_PATH
+          echo -n "$ENCODED_CERT" | base64 --decode --output Cert.p12
+          echo -n "$ENCODED_INSTALLER_CERT" | base64 --decode --output InstallerCert.p12
+
+          security create-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security set-keychain-settings -lut 90000000 $KEYCHAIN_PATH
+          security unlock-keychain -p $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security import Cert.p12 -P $KEYCHAIN_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -T /usr/bin/codesign
+          security import InstallerCert.p12 -P $KEYCHAIN_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+          security default-keychain -s $KEYCHAIN_PATH
+          security find-certificate -c "Developer ID Application: Przemysaw Zydek (24P5W7TK47)" -p >> ./cert.pem
+          security find-certificate -c "Developer ID Installer: Przemysaw Zydek (24P5W7TK47)" -p >> ./installer_cert.pem
+          sudo security authorizationdb write com.apple.trust-settings.admin allow
+          sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./cert.pem
+          sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
+          security find-identity -p codesigning
+
+      - name: Create .env file
+        run: |
+          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
+          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
+          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+
+      - name: Install dependencies
+        run: npm install && npm run rebuild
+
+      - name: Setup electron deps
+        run: npm run electron-install-deps
+
+      - name: Setup playwright and actions
+        run: npx playwright install-deps && npm install --prefix .github/actions && npx playwright install
+
+      - name: Build tools
+        run: npm run build:tools
+
+      - name: Create .env file
+        run: |
+          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
+          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> apps/electron/main/.env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
+          echo "API_URL=${{ secrets.API_URL }}" >> apps/electron/main/.env
+          echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
+          echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
+
+      - name: Package
+        run: npx nx run electron:make --skip-nx-cache
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+      - name: Run headless test
+        uses: GabrielBB/xvfb-action@v1
+        env:
+          SHORT_BREAK_DURATION_SECONDS: 5
+          LONG_BREAK_DURATION_SECONDS: 15
+          WORK_DURATION_SECONDS: 10
+          LONG_BREAK_INTERVAL: 4
+          AUTO_RUN_WORK: false
+          AUTO_RUN_BREAK: false
+          DB_ENGINE: better-sqlite3
+        with:
+          run: npx nx run electron-e2e:e2e --skip-nx-cache
+
+      - name: Upload Artifact
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: build-${{ matrix.os }}-x64
+          path: dist/apps/electron/main/out
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: test-artifact-${{ matrix.os }}-electron
+          path: artifacts
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() }}
+        with:
+          name: trace-${{ matrix.os }}-electron
+          path: test-results
