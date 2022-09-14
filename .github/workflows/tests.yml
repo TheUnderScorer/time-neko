@@ -58,21 +58,15 @@ jobs:
           installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
           privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
 
-      - uses: octokit/request-action@v2.x
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
         id: create_check_run
-        env:
-          GITHUB_TOKEN: ${{ steps.installation_token.outputs.token }}
-        name: Create check run
         with:
-          route: POST /repos/{owner}/{repo}/check-runs
-          owner: TheUnderScorer
-          repo: time-neko-app
-          name: "Test check run"
-          head_sha: ${{github.event.client_payload.github.sha}}
+          token: ${{ steps.installation_token.outputs.token }}
+          name: Unit tests
+          sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
-          output: |
-            title: Unit tests
-            summary: Unit tests & linting
+          repo: ${{ secrets.REPOSITORY }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -115,19 +109,17 @@ jobs:
           DB_ENGINE: better-sqlite3
           NX_RECAPTCHA_KEY: recaptcha-key
 
-      - uses: octokit/request-action@v2.x
-        id: update_check_run
-        name: Update check run
-        if: ${{ always() }}
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        id: create_check
         with:
-          route: PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}
-          owner: octokit
-          repo: ${{ secrets.REPOSITORY }}
-          check_run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
+          token: ${{ steps.installation_token.outputs.token }}
+          name: Unit tests
+          sha: ${{github.event.client_payload.github.sha}}
           conclusion: ${{ job.status }}
           status: "completed"
-        env:
-          GITHUB_TOKEN: ${{ steps.installation_token.outputs.token }}
+          repo: ${{ secrets.REPOSITORY }}
+          check_run_id: ${{ steps.create_check_run.outputs.check_id }}
 
   e2e-website:
     name: Website e2e tests
