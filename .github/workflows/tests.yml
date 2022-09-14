@@ -49,14 +49,23 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
-      - uses: LouisBrunner/checks-action@v1.1.1
-        name: Create status check
+
+
+      - uses: octokit/request-action@v2.x
+        id: create_check_run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+        name: Create check run
         with:
-          repo: ${{ secrets.REPOSITORY }}
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          name: Unit tests
-          status: in_progress
-          sha: ${{github.event.client_payload.github.sha}}
+          route: POST /repos/{owner}/{repo}/check-runs
+          owner: TheUnderScorer
+          repo: time-neko-app
+          name: "Test check run"
+          head_sha: ${{github.event.client_payload.github.sha}}
+          status: "in_progress"
+          output: |
+            title: Unit tests
+            summary: Unit tests & linting
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -99,16 +108,19 @@ jobs:
           DB_ENGINE: better-sqlite3
           NX_RECAPTCHA_KEY: recaptcha-key
 
-      - uses: LouisBrunner/checks-action@v1.1.1
+      - uses: octokit/request-action@v2.x
+        id: update_check_run
+        name: Update check run
         if: ${{ always() }}
-        name: Update status check
         with:
+          route: PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}
+          owner: octokit
           repo: ${{ secrets.REPOSITORY }}
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          name: Unit tests
-          status: completed
-          sha: ${{github.event.client_payload.github.sha}}
+          check_run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
           conclusion: ${{ job.status }}
+          status: "completed"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   e2e-website:
     name: Website e2e tests
