@@ -43,6 +43,12 @@ jobs:
     env:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
       - uses: LouisBrunner/checks-action@v1.1.1
         name: Create status check
         with:
@@ -51,12 +57,6 @@ jobs:
           name: Unit tests
           status: in_progress
           sha: ${{github.event.client_payload.github.sha}}
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          fetch-depth: 0
-          repository: ${{ secrets.REPOSITORY }}
-          ref: ${{ github.event.client_payload.github.ref }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
