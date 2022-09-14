@@ -72,6 +72,7 @@ jobs:
         run: |
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+          echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Lint
         run: npx nx affected --target=lint --base=origin/test --head=HEAD --parallel=3
@@ -86,6 +87,7 @@ jobs:
           AUTO_RUN_WORK: false
           AUTO_RUN_BREAK: false
           DB_ENGINE: better-sqlite3
+          NX_RECAPTCHA_KEY: recaptcha-key
 
   e2e-website:
     name: Website e2e tests
@@ -134,6 +136,7 @@ jobs:
           echo "NX_API_URL=http://localhost:3000/development" >> .env
           echo "NX_APP_URL=http://localhost:4202/development" >> .env
           echo "GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
+          echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Start lambdas
         run: npx nx serve lambdas &
@@ -189,6 +192,7 @@ jobs:
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
           echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
+          echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Build extension
         run: npx nx build browser-extension --production --skip-nx-cache
@@ -256,6 +260,7 @@ jobs:
           echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
           echo "NX_DISABLE_SHARED_WORKER=true" >> .env
           echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
+          echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Build web app
         run: npx nx build web-app-worker --production --skip-nx-cache
@@ -351,6 +356,7 @@ jobs:
           echo "API_URL=${{ secrets.API_URL }}" >> apps/electron/main/.env
           echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
           echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
+          echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Package
         run: npx nx run electron:make --skip-nx-cache
