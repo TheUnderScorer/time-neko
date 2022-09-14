@@ -1,7 +1,7 @@
 name: Tests
 on:
   repository_dispatch:
-    types: [test]
+    types: [ test ]
 
 jobs:
   get-affected:
@@ -41,6 +41,15 @@ jobs:
     name: Unit tests & linting
     runs-on: ubuntu-latest
     steps:
+      - name: Report status
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{secrets.GH_ADMIN_TOKEN}}
+          context: 'Unit tests'
+          description: 'Running unit tests'
+          state: 'pending'
+          sha: ${{github.event.client_payload.github.sha}}
+          repository: ${{ secrets.REPOSITORY }}
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ADMIN_TOKEN }}
@@ -88,6 +97,28 @@ jobs:
           AUTO_RUN_BREAK: false
           DB_ENGINE: better-sqlite3
           NX_RECAPTCHA_KEY: recaptcha-key
+
+      - name: Report status
+        if: ${{ success() }}
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{secrets.GH_ADMIN_TOKEN}}
+          context: 'Unit tests'
+          description: 'Unit tests passed'
+          state: 'success'
+          sha: ${{github.event.client_payload.github.sha}}
+          repository: ${{ secrets.REPOSITORY }}
+
+      - name: Report status
+        if: ${{ failure() }}
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{secrets.GH_ADMIN_TOKEN}}
+          context: 'Unit tests'
+          description: 'Unit tests failed'
+          state: 'failure'
+          sha: ${{github.event.client_payload.github.sha}}
+          repository: ${{ secrets.REPOSITORY }}
 
   e2e-website:
     name: Website e2e tests
@@ -162,7 +193,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['ubuntu-latest', 'macos-latest']
+        os: [ 'ubuntu-latest', 'macos-latest' ]
     name: Browser Extension e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON(needs.get-affected.outputs.affected).browser-extension }}
@@ -284,7 +315,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
     name: Electron e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
