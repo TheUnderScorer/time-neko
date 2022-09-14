@@ -43,15 +43,14 @@ jobs:
     env:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     steps:
-      - name: Report status
-        uses: Sibz/github-status-action@v1
+      - uses: LouisBrunner/checks-action@v1.1.1
+        name: Create status check
         with:
-          authToken: ${{secrets.GH_ADMIN_TOKEN}}
-          context: 'Unit tests'
-          description: 'Running unit tests'
-          state: 'pending'
+          repo: ${{ secrets.REPOSITORY }}
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          name: Unit tests
+          status: in_progress
           sha: ${{github.event.client_payload.github.sha}}
-          repository: time-neko-app
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ADMIN_TOKEN }}
@@ -100,27 +99,16 @@ jobs:
           DB_ENGINE: better-sqlite3
           NX_RECAPTCHA_KEY: recaptcha-key
 
-      - name: Report status
-        if: ${{ success() }}
-        uses: Sibz/github-status-action@v1
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: ${{ always() }}
+        name: Update status check
         with:
-          authToken: ${{secrets.GH_ADMIN_TOKEN}}
-          context: 'Unit tests'
-          description: 'Unit tests passed'
-          state: 'success'
+          repo: ${{ secrets.REPOSITORY }}
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          name: Unit tests
+          status: completed
           sha: ${{github.event.client_payload.github.sha}}
-          repository: ${{ secrets.REPOSITORY }}
-
-      - name: Report status
-        if: ${{ failure() }}
-        uses: Sibz/github-status-action@v1
-        with:
-          authToken: ${{secrets.GH_ADMIN_TOKEN}}
-          context: 'Unit tests'
-          description: 'Unit tests failed'
-          state: 'failure'
-          sha: ${{github.event.client_payload.github.sha}}
-          repository: ${{ secrets.REPOSITORY }}
+          conclusion: ${{ job.status }}
 
   e2e-website:
     name: Website e2e tests
