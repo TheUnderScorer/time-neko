@@ -400,6 +400,7 @@ jobs:
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
     env:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
+      CHECK_ID_KEY: format('e2e_electron_{0}_check_id', matrix.os)
     needs:
       - get-affected
       - setup-gh-app
@@ -414,7 +415,7 @@ jobs:
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
-          check_id: format('${{github.event.client_payload.e2e_electron_{0}_check_id}}', matrix.os)
+          check_id: ${{ github.event.client_payload[env.CHECK_ID_KEY] }}
           token: ${{ needs.setup-gh-app.outputs.token}}
           sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
@@ -527,5 +528,5 @@ jobs:
           conclusion: ${{ job.status }}
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
-          check_id: format('${{github.event.client_payload.e2e_electron_{0}_check_id}}', matrix.os)
+          check_id: ${{ github.event.client_payload[env.CHECK_ID_KEY] }}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
