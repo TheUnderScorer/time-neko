@@ -61,7 +61,7 @@ jobs:
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
-          check_id: ${{github.event.client_payload.check_id}}
+          check_id: ${{github.event.client_payload.unit_tests_check_id}}
           token: ${{ steps.installation_token.outputs.token }}
           sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
@@ -117,7 +117,7 @@ jobs:
           conclusion: ${{ job.status }}
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
-          check_id: ${{github.event.client_payload.check_id}}
+          check_id: ${{github.event.client_payload.unit_tests_check_id}}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   e2e-website:
