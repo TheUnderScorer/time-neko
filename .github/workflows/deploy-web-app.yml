@@ -2,12 +2,6 @@ name: Deploy web-app
 on:
   repository_dispatch:
     types: [ deploy-web-app ]
-  workflow_dispatch:
-    inputs:
-      enviroment:
-        description: Environment to deploy to
-        required: true
-        type: environment
 
 jobs:
   get-data:

@@ -4,16 +4,6 @@ on:
   repository_dispatch:
     types: [ build-browser-extension ]
 
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Tag for which release assets will be generated (optional)
-        required: false
-      enviroment:
-        description: Environment to build for (optional)
-        required: false
-        type: environment
-
 jobs:
   get-data:
     if: ${{ github.event.client_payload.github.event_name != 'create' || contains(github.event.client_payload.github.ref, 'browser-extension-v') }}
