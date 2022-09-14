@@ -415,7 +415,7 @@ jobs:
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
     env:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
-      CHECK_ID_KEY: format('e2e_electron_{0}_check_id', matrix.os)
+      CHECK_ID_KEY: ${{ format('e2e_electron_{0}_check_id', matrix.os) }}
     needs:
       - get-affected
     steps:
