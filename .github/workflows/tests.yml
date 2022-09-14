@@ -66,6 +66,7 @@ jobs:
           sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
           repo: ${{ secrets.REPOSITORY }}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -117,6 +118,7 @@ jobs:
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
           check_id: ${{github.event.client_payload.check_id}}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   e2e-website:
     name: Website e2e tests
