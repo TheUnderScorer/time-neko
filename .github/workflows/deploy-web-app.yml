@@ -69,7 +69,6 @@ jobs:
         run: |
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
-          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
           echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
           echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> .env
           echo "NX_WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> .env

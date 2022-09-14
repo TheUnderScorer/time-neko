@@ -91,7 +91,6 @@ jobs:
       - name: Create .env file
         run: |
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
-          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Lint
@@ -274,7 +273,6 @@ jobs:
         run: |
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
-          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Build extension
@@ -371,9 +369,8 @@ jobs:
         run: |
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
-          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
           echo "NX_DISABLE_SHARED_WORKER=true" >> .env
-          echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
+          echo "NX_API_URL=http://localhost:3000/development" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Build web app
@@ -410,7 +407,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
-    name: Electron e2e tests
+    name: Electron e2ye tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
     env:
@@ -476,12 +473,6 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
 
-      - name: Create .env file
-        run: |
-          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
-          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
-          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> .env
-
       - name: Install dependencies
         run: npm install && npm run rebuild
 
@@ -497,9 +488,8 @@ jobs:
       - name: Create .env file
         run: |
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
-          echo "TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> apps/electron/main/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
-          echo "API_URL=${{ secrets.API_URL }}" >> apps/electron/main/.env
+          echo "API_URL=http://localhost:3000/development" >> apps/electron/main/.env
           echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
           echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env

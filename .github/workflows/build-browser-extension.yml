@@ -72,7 +72,6 @@ jobs:
       - name: Create .env file
         run: |
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/browser-extension/.env
-          echo "NX_TRELLO_REDIRECT_URL=${{ secrets.TRELLO_REDIRECT_URL }}" >> apps/browser-extension/.env
           echo "NX_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/browser-extension/.env
           echo "NX_API_URL=${{ secrets.API_URL }}" >> apps/browser-extension/.env
           echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/browser-extension/.env
