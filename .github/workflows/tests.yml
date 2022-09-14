@@ -532,10 +532,19 @@ jobs:
           name: trace-${{ matrix.os }}-electron
           path: test-results
 
+      - name: Create GitHub App Installation Token
+        if: always()
+        uses: jnwng/github-app-installation-token-action@v2
+        id: installation_token_after
+        with:
+          appId: ${{ secrets.GH_APP_ID }}
+          installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
-          token: ${{ steps.installation_token.outputs.token }}
+          token: ${{ steps.installation_token_after.outputs.token }}
           sha: ${{github.event.client_payload.github.sha}}
           conclusion: ${{ job.status }}
           status: "completed"
