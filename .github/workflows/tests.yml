@@ -51,7 +51,7 @@ jobs:
           description: 'Running unit tests'
           state: 'pending'
           sha: ${{github.event.client_payload.github.sha}}
-          repository: ${{ secrets.REPOSITORY }}
+          repository: time-neko-app
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ADMIN_TOKEN }}
