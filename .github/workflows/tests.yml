@@ -63,7 +63,6 @@ jobs:
         with:
           check_id: ${{github.event.client_payload.check_id}}
           token: ${{ steps.installation_token.outputs.token }}
-          name: Unit tests
           sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
           repo: ${{ secrets.REPOSITORY }}
@@ -113,7 +112,6 @@ jobs:
         if: always()
         with:
           token: ${{ steps.installation_token.outputs.token }}
-          name: Unit tests
           sha: ${{github.event.client_payload.github.sha}}
           conclusion: ${{ job.status }}
           status: "completed"
