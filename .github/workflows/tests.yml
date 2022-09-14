@@ -60,8 +60,8 @@ jobs:
 
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
-        id: create_check_run
         with:
+          check_id: ${{github.event.client_payload.check_id}}
           token: ${{ steps.installation_token.outputs.token }}
           name: Unit tests
           sha: ${{github.event.client_payload.github.sha}}
@@ -111,7 +111,6 @@ jobs:
 
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
-        id: create_check
         with:
           token: ${{ steps.installation_token.outputs.token }}
           name: Unit tests
@@ -119,7 +118,7 @@ jobs:
           conclusion: ${{ job.status }}
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
-          check_id: ${{ steps.create_check_run.outputs.check_id }}
+          check_id: ${{github.event.client_payload.check_id}}
 
   e2e-website:
     name: Website e2e tests
