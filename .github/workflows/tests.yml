@@ -119,7 +119,7 @@ jobs:
           conclusion: ${{ job.status }}
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
-          check_run_id: ${{ steps.create_check_run.outputs.check_id }}
+          check_id: ${{ steps.create_check_run.outputs.check_id }}
 
   e2e-website:
     name: Website e2e tests
