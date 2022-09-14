@@ -50,11 +50,18 @@ jobs:
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
 
+      - name: Create GitHub App Installation Token
+        uses: jnwng/github-app-installation-token-action@v2
+        id: installation_token
+        with:
+          appId: ${{ secrets.GH_APP_ID }}
+          installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
 
       - uses: octokit/request-action@v2.x
         id: create_check_run
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.installation_token.outputs.token }}
         name: Create check run
         with:
           route: POST /repos/{owner}/{repo}/check-runs
@@ -120,7 +127,7 @@ jobs:
           conclusion: ${{ job.status }}
           status: "completed"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.installation_token.outputs.token }}
 
   e2e-website:
     name: Website e2e tests
