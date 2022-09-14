@@ -3,6 +3,9 @@ on:
   repository_dispatch:
     types: [ test ]
 
+env:
+  NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
+
 jobs:
   get-affected:
     name: Get affected projects
