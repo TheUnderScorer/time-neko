@@ -4,6 +4,19 @@ on:
     types: [ test ]
 
 jobs:
+  setup-gh-app:
+    name: Setup GitHub app
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.installation_token.outputs.token }}
+    steps:
+      - name: Create GitHub App Installation Token
+        uses: jnwng/github-app-installation-token-action@v2
+        id: installation_token
+        with:
+          appId: ${{ secrets.GH_APP_ID }}
+          installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
+          privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
   get-affected:
     name: Get affected projects
     runs-on: ubuntu-latest
@@ -40,6 +53,8 @@ jobs:
   units:
     name: Unit tests & linting
     runs-on: ubuntu-latest
+    needs:
+      - setup-gh-app
     env:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     steps:
@@ -50,19 +65,11 @@ jobs:
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
 
-      - name: Create GitHub App Installation Token
-        uses: jnwng/github-app-installation-token-action@v2
-        id: installation_token
-        with:
-          appId: ${{ secrets.GH_APP_ID }}
-          installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
-          privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
-
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
           check_id: ${{github.event.client_payload.unit_tests_check_id}}
-          token: ${{ steps.installation_token.outputs.token }}
+          token: ${{ needs.setup-gh-app.outputs.token}}
           sha: ${{github.event.client_payload.github.sha}}
           status: "in_progress"
           repo: ${{ secrets.REPOSITORY }}
@@ -112,7 +119,7 @@ jobs:
       - uses: LouisBrunner/checks-action@v1.1.1
         if: always()
         with:
-          token: ${{ steps.installation_token.outputs.token }}
+          token: ${{ needs.setup-gh-app.outputs.token}}
           sha: ${{github.event.client_payload.github.sha}}
           conclusion: ${{ job.status }}
           status: "completed"
@@ -128,6 +135,7 @@ jobs:
     if: ${{ fromJSON(needs.get-affected.outputs.affected).website }}
     needs:
       - get-affected
+      - setup-gh-app
     steps:
       - uses: actions/checkout@v3
         with:
@@ -135,6 +143,16 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          check_id: ${{github.event.client_payload.e2e_website_check_id}}
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          status: "in_progress"
+          repo: ${{ secrets.REPOSITORY }}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -191,11 +209,22 @@ jobs:
           name: trace-website
           path: test-results
 
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          conclusion: ${{ job.status }}
+          status: "completed"
+          repo: ${{ secrets.REPOSITORY }}
+          check_id: ${{github.event.client_payload.e2e_website_check_id}}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+
   e2e-browser-extension:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-latest', 'macos-latest' ]
+        os: [ 'ubuntu-latest' ]
     name: Browser Extension e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON(needs.get-affected.outputs.affected).browser-extension }}
@@ -203,6 +232,7 @@ jobs:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     needs:
       - get-affected
+      - setup-gh-app
     steps:
       - uses: actions/checkout@v3
         with:
@@ -210,6 +240,16 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          check_id: ${{github.event.client_payload.e2e_browser_extension_check_id}}
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          status: "in_progress"
+          repo: ${{ secrets.REPOSITORY }}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -262,6 +302,17 @@ jobs:
           name: trace-${{ matrix.os }}-browser-extension
           path: test-results
 
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          conclusion: ${{ job.status }}
+          status: "completed"
+          repo: ${{ secrets.REPOSITORY }}
+          check_id: ${{github.event.client_payload.e2e_browser_extension_check_id}}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+
   e2e-web-app:
     name: Web App e2e tests
     runs-on: ubuntu-latest
@@ -271,6 +322,7 @@ jobs:
     if: ${{ fromJSON(needs.get-affected.outputs.affected).web-app }}
     needs:
       - get-affected
+      - setup-gh-app
     steps:
       - uses: actions/checkout@v3
         with:
@@ -278,6 +330,16 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          check_id: ${{github.event.client_payload.e2e_web_app_check_id}}
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          status: "in_progress"
+          repo: ${{ secrets.REPOSITORY }}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -317,6 +379,17 @@ jobs:
           name: trace-${{ matrix.os }}-web-app
           path: apps/web-app/test-results
 
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          conclusion: ${{ job.status }}
+          status: "completed"
+          repo: ${{ secrets.REPOSITORY }}
+          check_id: ${{github.event.client_payload.e2e_web_app_check_id}}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+
   e2e-electron:
     strategy:
       fail-fast: false
@@ -329,6 +402,7 @@ jobs:
       NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     needs:
       - get-affected
+      - setup-gh-app
     steps:
       - uses: actions/checkout@v3
         with:
@@ -336,6 +410,16 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          check_id: format('${{github.event.client_payload.e2e_electron_{0}_check_id}}', matrix.os)
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          status: "in_progress"
+          repo: ${{ secrets.REPOSITORY }}
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
@@ -434,3 +518,14 @@ jobs:
         with:
           name: trace-${{ matrix.os }}-electron
           path: test-results
+
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ needs.setup-gh-app.outputs.token}}
+          sha: ${{github.event.client_payload.github.sha}}
+          conclusion: ${{ job.status }}
+          status: "completed"
+          repo: ${{ secrets.REPOSITORY }}
+          check_id: format('${{github.event.client_payload.e2e_electron_{0}_check_id}}', matrix.os)
+          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
