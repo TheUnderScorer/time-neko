@@ -3,9 +3,6 @@ on:
   repository_dispatch:
     types: [ test ]
 
-env:
-  NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
-
 jobs:
   get-affected:
     name: Get affected projects
@@ -43,6 +40,8 @@ jobs:
   units:
     name: Unit tests & linting
     runs-on: ubuntu-latest
+    env:
+      NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     steps:
       - name: Report status
         uses: Sibz/github-status-action@v1
@@ -126,6 +125,8 @@ jobs:
   e2e-website:
     name: Website e2e tests
     runs-on: ubuntu-latest
+    env:
+      NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     if: ${{ fromJSON(needs.get-affected.outputs.affected).website }}
     needs:
       - get-affected
@@ -200,6 +201,8 @@ jobs:
     name: Browser Extension e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON(needs.get-affected.outputs.affected).browser-extension }}
+    env:
+      NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     needs:
       - get-affected
     steps:
@@ -265,6 +268,8 @@ jobs:
     name: Web App e2e tests
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    env:
+      NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     if: ${{ fromJSON(needs.get-affected.outputs.affected).web-app }}
     needs:
       - get-affected
@@ -322,6 +327,8 @@ jobs:
     name: Electron e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
+    env:
+      NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
     needs:
       - get-affected
     steps:
