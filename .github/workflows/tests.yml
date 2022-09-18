@@ -493,6 +493,7 @@ jobs:
           echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
           echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env
+          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
 
       - name: Package
         run: npx nx run electron:make --skip-nx-cache
