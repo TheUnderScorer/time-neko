@@ -68,7 +68,6 @@ jobs:
           echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
           echo "NX_APP_URL=${{ secrets.APP_URL }}" >> .env
           echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> .env
-          echo "GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
 
       - uses: amondnet/vercel-action@v20 #deploy
         name: Deploy to production
