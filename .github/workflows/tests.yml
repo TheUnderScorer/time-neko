@@ -479,8 +479,11 @@ jobs:
       - name: Setup electron deps
         run: npm run electron-install-deps
 
+      - name: Setup github actions
+        run: npm install --prefix .github/actions
+
       - name: Setup playwright and actions
-        run: npx playwright install-deps && npm install --prefix .github/actions && npx playwright install
+        run: npx playwright install-deps && npx playwright install
 
       - name: Build tools
         run: npm run build:tools
