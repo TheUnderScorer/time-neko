@@ -480,7 +480,8 @@ jobs:
         run: npm run electron-install-deps
 
       - name: Setup github actions
-        run: npm install --prefix .github/actions
+        working-directory: .github/actions
+        run: npm install
 
       - name: Setup playwright and actions
         run: npx playwright install-deps && npx playwright install
