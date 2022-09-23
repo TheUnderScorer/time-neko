@@ -94,10 +94,10 @@ jobs:
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Lint
-        run: npx nx affected --target=lint --base=origin/test --head=HEAD --parallel=3 --exclude=windows-browser-controller,windows-browser-controller-test
+        run: npx nx affected --target=lint --base=origin/test --head=HEAD --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
 
       - name: Test
-        run: npx nx affected --target=test --base=origin/test --head=HEAD --parallel=3 --exclude=windows-browser-controller,windows-browser-controller-test
+        run: npx nx affected --target=test --base=origin/test --head=HEAD --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
         env:
           SHORT_BREAK_DURATION_SECONDS: 5
           LONG_BREAK_DURATION_SECONDS: 15
