@@ -98,7 +98,7 @@ jobs:
         if: ${{ needs.get-data.outputs.tag }}
         uses: svenstaro/upload-release-action@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GH_ADMIN_TOKEN }}
           file: dist/apps/browser-extension.zip
           asset_name: browser-extension.zip
           tag: ${{ needs.get-data.outputs.tag }}
