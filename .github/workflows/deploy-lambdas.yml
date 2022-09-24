@@ -76,7 +76,7 @@ jobs:
           key: nodemodules-${{ hashFiles('package-lock.json') }}
           restore-keys: nodemodules-
 
-      - run: npm install && npm i serverless@3 -g
+      - run: npm install
 
       - name: serverless deploy
         run: npx nx run lambdas:deploy:${{ needs.get-data.outputs.env }}
