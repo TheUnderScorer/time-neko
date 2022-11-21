@@ -494,7 +494,7 @@ jobs:
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
           echo "API_URL=http://localhost:3000/development" >> apps/electron/main/.env
-          echo "DB_ENGINE=better-sqlite3" >> apps/electron/main/.env
+          echo "DB_ENGINE=sqlite" >> apps/electron/main/.env
           echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env
           echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
