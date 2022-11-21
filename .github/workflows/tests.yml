@@ -85,9 +85,6 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install && npm install @swc/core-linux-x64-gnu
 
-      - name: Setup sqlite
-        run: npm run rebuild-sqlite
-
       - name: Create .env file
         run: |
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
