@@ -2,7 +2,7 @@ name: Build electron binaries
 
 on:
   repository_dispatch:
-    types: [ build-electron ]
+    types: [build-electron]
 
 jobs:
   get-data:
@@ -22,7 +22,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: "16"
 
       - name: Install npm dependencies
         run: npm install --prefix .github/actions
@@ -54,6 +54,7 @@ jobs:
     environment: ${{ needs.get-data.outputs.env }}
     timeout-minutes: 90
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest, macos-arm64]
         arch: [x64, arm64]
@@ -78,7 +79,7 @@ jobs:
         uses: actions/setup-node@v2
         if: ${{ matrix.arch != 'arm64' && matrix.os != 'macos-arm64' }}
         with:
-          node-version: '16.13.2'
+          node-version: "16.13.2"
 
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' && matrix.arch == 'x64' }}
@@ -108,7 +109,7 @@ jobs:
           security find-identity -p codesigning
 
       - name: Cache
-        id: 'npm-cache'
+        id: "npm-cache"
         uses: actions/cache@v2
         with:
           path: node_modules
