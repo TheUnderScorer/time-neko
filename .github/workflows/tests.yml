@@ -291,7 +291,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: test-artifact-${{ matrix.os }}-browser-extension
-          path: artifacts
+          path: apps/browser-extension-e2e/src/artifacts
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -380,7 +380,7 @@ jobs:
         if: always()
         with:
           name: test-artifact-web-app
-          path: artifacts
+          path: apps/web-app/e2e/src/artifacts
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -526,7 +526,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: test-artifact-${{ matrix.os }}-electron
-          path: artifacts
+          path: apps/electron/e2e/src/artifacts
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
