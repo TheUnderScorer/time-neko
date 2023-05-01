@@ -75,12 +75,10 @@ jobs:
           echo "NX_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/browser-extension/.env
           echo "NX_API_URL=${{ secrets.API_URL }}" >> apps/browser-extension/.env
           echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/browser-extension/.env
-          echo "DB_ENGINE=sqlite" >> apps/browser-extension/.env
 
       - name: Build
         run: npx nx run browser-extension:build:production
         env:
-          DB_ENGINE: sqljs
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
       - name: Upload Artifact

@@ -102,7 +102,6 @@ jobs:
           LONG_BREAK_INTERVAL: 4
           AUTO_RUN_WORK: false
           AUTO_RUN_BREAK: false
-          DB_ENGINE: better-sqlite3
           NX_RECAPTCHA_KEY: recaptcha-key
 
       - uses: LouisBrunner/checks-action@v1.1.1
@@ -489,9 +488,9 @@ jobs:
       - name: Create .env file
         run: |
           echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
+          echo "NODE_ENV=production" >> apps/electron/main/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
           echo "API_URL=http://localhost:3000/development" >> apps/electron/main/.env
-          echo "DB_ENGINE=sqlite" >> apps/electron/main/.env
           echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env
           echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
@@ -511,7 +510,6 @@ jobs:
           LONG_BREAK_INTERVAL: 4
           AUTO_RUN_WORK: false
           AUTO_RUN_BREAK: false
-          DB_ENGINE: better-sqlite3
         with:
           run: npx nx run electron-e2e:e2e --skip-nx-cache
 
