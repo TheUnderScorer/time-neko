@@ -491,7 +491,7 @@ jobs:
           echo "NODE_ENV=production" >> apps/electron/main/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
           echo "API_URL=http://localhost:3000/development" >> apps/electron/main/.env
-          echo "WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
+          echo "NX_WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env
           echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
 
@@ -510,6 +510,9 @@ jobs:
           LONG_BREAK_INTERVAL: 4
           AUTO_RUN_WORK: false
           AUTO_RUN_BREAK: false
+          NODE_ENV: production
+          # Error dialogs cause CI to run forever
+          SKIP_ERROR_DIALOG: true
         with:
           run: npx nx run electron-e2e:e2e --skip-nx-cache
 
