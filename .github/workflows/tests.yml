@@ -21,7 +21,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Install dependencies
         run: npm ci && npm ci --prefix .github/actions
@@ -70,7 +70,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Cache
         uses: actions/cache@v2
@@ -150,7 +150,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -252,7 +252,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
@@ -346,7 +346,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
@@ -432,7 +432,7 @@ jobs:
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 20
 
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' }}
