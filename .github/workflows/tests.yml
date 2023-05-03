@@ -396,7 +396,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
-    name: Electron e2ye tests
+    name: Electron e2e tests
     runs-on: ${{ matrix.os }}
     if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
     env:
