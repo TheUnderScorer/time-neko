@@ -469,7 +469,11 @@ jobs:
           security find-identity -p codesigning
 
       - name: Install dependencies
-        run: npm install && npm ls appdmg
+        run: npm install
+
+      - name: Install appdmg
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: npm i appdmg -D && npm ls appdmg
 
       - name: Setup electron deps
         run: npm run electron-install-deps
