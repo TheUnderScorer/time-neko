@@ -359,6 +359,7 @@ jobs:
           echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
           echo "NX_DISABLE_SHARED_WORKER=true" >> .env
+          echo "NX_EXPOSE_WORKER_ON_WINDOW=true" >> .env
           echo "NX_API_URL=http://localhost:3000/development" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
 
