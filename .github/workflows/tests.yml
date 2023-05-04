@@ -432,7 +432,7 @@ jobs:
           repo: ${{ secrets.REPOSITORY }}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
 
-      - name: Set Node.js 16.x
+      - name: Set Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 20
@@ -465,11 +465,7 @@ jobs:
           security find-identity -p codesigning
 
       - name: Install dependencies
-        run: npm install && npm run rebuild
-
-      - name: Install appdmg
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: npm install -D appdmg
+        run: npm install && npm ls appdmg
 
       - name: Setup electron deps
         run: npm run electron-install-deps
