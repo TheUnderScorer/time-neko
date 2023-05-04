@@ -366,8 +366,10 @@ jobs:
       - name: Build web app
         run: npx nx build web-app --production --skip-nx-cache
 
-      - name: Run test
-        run: npx nx run web-app-e2e:e2e --skip-nx-cache
+      - name: Run headless test
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: npx nx run web-app-e2e:e2e --skip-nx-cache
 
       - uses: actions/upload-artifact@v3
         if: always()
