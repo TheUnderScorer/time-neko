@@ -437,10 +437,6 @@ jobs:
         with:
           node-version: 18
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' }}
         env:
@@ -471,9 +467,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install appdmg
+      - name: Check appdmg
         if: ${{ matrix.os == 'macos-latest' }}
-        run: npm i appdmg -D && npm ls appdmg
+        run: npm ls appdmg
 
       - name: Setup electron deps
         run: npm run electron-install-deps
