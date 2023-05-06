@@ -1,7 +1,7 @@
 name: Deploy web-app
 on:
   repository_dispatch:
-    types: [ deploy-web-app ]
+    types: [deploy-web-app]
 
 jobs:
   get-data:
@@ -75,7 +75,7 @@ jobs:
           echo "NX_RECAPTCHA_KEY=${{ secrets.RECAPTCHA_KEY }}" >> .env
 
       - name: Build web app
-        run: npx nx build web-app-worker --production --skip-nx-cache
+        run: npx nx build web-app --production --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
@@ -85,7 +85,7 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
-          vercel-args: '--prod' #Optional
+          vercel-args: "--prod" #Optional
           vercel-org-id: ${{ secrets.ORG_ID}} #Required
           vercel-project-id: ${{ secrets.WEB_APP_PROJECT_ID}} #Required
           alias-domains: |
