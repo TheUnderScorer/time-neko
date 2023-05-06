@@ -62,12 +62,12 @@ jobs:
       - name: Test
         run: npx nx affected --target=test --base=origin/main --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
         env:
-          SHORT_BREAK_DURATION_SECONDS: 5
-          LONG_BREAK_DURATION_SECONDS: 15
-          WORK_DURATION_SECONDS: 10
-          LONG_BREAK_INTERVAL: 4
-          AUTO_RUN_WORK: false
-          AUTO_RUN_BREAK: false
+          NX_SHORT_BREAK_DURATION_SECONDS: 5
+          NX_LONG_BREAK_DURATION_SECONDS: 15
+          NX_WORK_DURATION_SECONDS: 10
+          NX_LONG_BREAK_INTERVAL: 4
+          NX_AUTO_RUN_WORK: false
+          NX_AUTO_RUN_BREAK: false
           NX_RECAPTCHA_KEY: recaptcha-key
 
       - uses: LouisBrunner/checks-action@v1.1.1
@@ -143,7 +143,7 @@ jobs:
           echo "NX_ALLOW_PRERELEASES=true" >> .env
           echo "NX_API_URL=http://localhost:3000/development" >> .env
           echo "NX_APP_URL=http://localhost:4202/development" >> .env
-          echo "GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
+          echo "NX_GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Start lambdas
@@ -441,13 +441,13 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
+          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
           echo "NODE_ENV=production" >> apps/electron/main/.env
-          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
-          echo "API_URL=http://localhost:3000/development" >> apps/electron/main/.env
+          echo "NX_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
+          echo "NX_API_URL=http://localhost:3000/development" >> apps/electron/main/.env
           echo "NX_WEBSITE_URL=http://localhost:4200" >> apps/electron/main/.env
           echo "NX_ENABLE_DEBUG=true" >> .env
-          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
+          echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
 
       - name: Package
         run: npx nx affected -t make --base=origin/main --skip-nx-cache
@@ -458,15 +458,15 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         env:
-          SHORT_BREAK_DURATION_SECONDS: 5
-          LONG_BREAK_DURATION_SECONDS: 15
-          WORK_DURATION_SECONDS: 10
-          LONG_BREAK_INTERVAL: 4
-          AUTO_RUN_WORK: false
-          AUTO_RUN_BREAK: false
+          NX_SHORT_BREAK_DURATION_SECONDS: 5
+          NX_LONG_BREAK_DURATION_SECONDS: 15
+          NX_WORK_DURATION_SECONDS: 10
+          NX_LONG_BREAK_INTERVAL: 4
+          NX_AUTO_RUN_WORK: false
+          NX_AUTO_RUN_BREAK: false
           NODE_ENV: production
           # Error dialogs cause CI to run forever
-          SKIP_ERROR_DIALOG: true
+          NX_SKIP_ERROR_DIALOG: true
         with:
           run: npx nx affected -t e2e --base=origin/main --exclude=web-app-e2e,website-e2e,browser-extension-e2e
 
