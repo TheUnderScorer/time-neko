@@ -155,6 +155,10 @@ jobs:
       - name: Build website
         run: npx nx build website --production --skip-nx-cache
 
+      - name: Try to run website
+        run: npx next start --port=${websitePort}
+        working-directory: dist/apps/website
+
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
