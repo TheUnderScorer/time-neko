@@ -77,13 +77,8 @@ jobs:
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v2
-        if: ${{ matrix.arch != 'arm64' && matrix.os != 'macos-arm64' }}
         with:
           node-version: 18
-
-      - name: Set Node.js on local runner
-        if: ${{ matrix.os == 'macos-arm64' }}
-        run: nvm use 18
 
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' && matrix.arch == 'x64' }}
