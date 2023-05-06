@@ -79,7 +79,7 @@ jobs:
         uses: actions/setup-node@v2
         if: ${{ matrix.arch != 'arm64' && matrix.os != 'macos-arm64' }}
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' && matrix.arch == 'x64' }}
