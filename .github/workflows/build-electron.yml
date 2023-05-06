@@ -82,7 +82,6 @@ jobs:
           node-version: 18
 
       - name: Set Node.js on local runner
-        uses: actions/setup-node@v2
         if: ${{ matrix.os != 'macos-arm64' }}
         run: nvm use 18
 
