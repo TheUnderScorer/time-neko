@@ -40,7 +40,7 @@ jobs:
           node-version: 20
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: npm-cache
         with:
           path: node_modules
@@ -124,7 +124,7 @@ jobs:
           aws-region: eu-west-1
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: npm-cache
         with:
           path: node_modules

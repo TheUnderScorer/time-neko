@@ -1,7 +1,7 @@
 name: Deploy lambdas
 on:
   repository_dispatch:
-    types: [ deploy-lambdas ]
+    types: [deploy-lambdas]
 
 jobs:
   get-data:
@@ -70,7 +70,7 @@ jobs:
           node-version: 20
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: nodemodules-${{ hashFiles('package-lock.json') }}
