@@ -1,43 +1,10 @@
 name: Tests
 on:
   repository_dispatch:
-    types: [ test ]
+    types: [test]
 env:
   NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
 jobs:
-  get-affected:
-    name: Get affected projects
-    runs-on: ubuntu-latest
-    outputs:
-      affected: ${{ steps.affected.outputs.affected }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          fetch-depth: 0
-          repository: ${{ secrets.REPOSITORY }}
-          ref: ${{ github.event.client_payload.github.ref }}
-
-      - name: Set Node.js 16.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci && npm ci --prefix .github/actions
-
-      - name: Affected
-        id: affected
-        uses: ./.github/actions/list-affected
-        with:
-          base: 'origin/test'
-          head: 'HEAD'
-
-      - name: Output vars
-        run: |
-          echo "Affected: ${{ steps.affected.outputs.affected }}"
-          echo "Affected JSON: ${{ fromJSON(steps.affected.outputs.affected) }}"
-
   units:
     name: Unit tests & linting
     runs-on: ubuntu-latest
@@ -90,10 +57,10 @@ jobs:
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Lint
-        run: npx nx affected --target=lint --base=origin/test --head=HEAD --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        run: npx nx affected --target=lint --base=origin/main --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
 
       - name: Test
-        run: npx nx affected --target=test --base=origin/test --head=HEAD --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        run: npx nx affected --target=test --base=origin/main --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
         env:
           SHORT_BREAK_DURATION_SECONDS: 5
           LONG_BREAK_DURATION_SECONDS: 15
@@ -117,9 +84,6 @@ jobs:
   e2e-website:
     name: Website e2e tests
     runs-on: ubuntu-latest
-    if: ${{ fromJSON(needs.get-affected.outputs.affected).website }}
-    needs:
-      - get-affected
 
     steps:
       - uses: actions/checkout@v3
@@ -194,7 +158,7 @@ jobs:
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx run website-e2e:e2e
+          run: npx nx affected -t e2e --base=origin/main --exclude=electron-e2e,browser-extension-e2e,web-app-e2e
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -217,12 +181,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'ubuntu-latest' ]
+        os: ["ubuntu-latest"]
     name: Browser Extension e2e tests
     runs-on: ${{ matrix.os }}
-    if: ${{ fromJSON(needs.get-affected.outputs.affected).browser-extension }}
-    needs:
-      - get-affected
     steps:
       - uses: actions/checkout@v3
         with:
@@ -272,7 +233,7 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx run browser-extension-e2e:e2e --skip-nx-cache
+          run: npx nx affected -t e2e --base=origin/main --exclude=electron-e2e,website-e2e,web-app-e2e
 
       - name: Upload Artifact
         if: always()
@@ -314,9 +275,6 @@ jobs:
     name: Web App e2e tests
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    if: ${{ fromJSON(needs.get-affected.outputs.affected).web-app }}
-    needs:
-      - get-affected
     steps:
       - uses: actions/checkout@v3
         with:
@@ -369,7 +327,7 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx run web-app-e2e:e2e --skip-nx-cache
+          run: npx nx affected -t e2e --base=origin/main --exclude=electron-e2e,website-e2e,browser-extension-e2e
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -398,14 +356,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        os: [macos-latest, ubuntu-latest, windows-latest]
     name: Electron e2e tests
     runs-on: ${{ matrix.os }}
-    if: ${{ fromJSON( needs.get-affected.outputs.affected).electron }}
     env:
       CHECK_ID_KEY: ${{ format('e2e_electron_{0}_check_id', matrix.os) }}
-    needs:
-      - get-affected
     steps:
       - uses: actions/checkout@v3
         with:
@@ -495,7 +450,7 @@ jobs:
           echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
 
       - name: Package
-        run: npx nx run electron:make --skip-nx-cache
+        run: npx nx affected -t make --base=origin/main --skip-nx-cache
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
@@ -513,7 +468,7 @@ jobs:
           # Error dialogs cause CI to run forever
           SKIP_ERROR_DIALOG: true
         with:
-          run: npx nx run electron-e2e:e2e --skip-nx-cache
+          run: npx nx affected -t e2e --base=origin/main --exclude=web-app-e2e,website-e2e,browser-extension-e2e
 
       - name: Upload Artifact
         if: always()
