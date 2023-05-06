@@ -136,10 +136,10 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
+          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> apps/electron/main/.env
           echo "NX_SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> apps/electron/main/.env
           echo "NX_API_URL=${{ secrets.API_URL }}" >> apps/electron/main/.env
-          echo "MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/electron/main/.env
+          echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/electron/main/.env
           echo "NX_WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> apps/electron/main/.env
           echo "NODE_ENV=production" >> apps/electron/main/.env
           echo "NX_WEBSITE_URL=${{ secrets.WEBSITE_URL }}" >> .env
