@@ -153,7 +153,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Build website
-        run: npx nx build website --production
+        run: npx nx build website --production --skip-nx-cache
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
