@@ -82,7 +82,7 @@ jobs:
           node-version: 18
 
       - name: Set Node.js on local runner
-        if: ${{ matrix.os != 'macos-arm64' }}
+        if: ${{ matrix.os == 'macos-arm64' }}
         run: nvm use 18
 
       - name: Setup keychain
