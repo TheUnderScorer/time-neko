@@ -206,7 +206,7 @@ jobs:
         if: ${{ needs.get-data.outputs.tag }}
         run: npx nx run electron:publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          NX_GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
           TAG_NAME: ${{ needs.get-data.outputs.tag }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
