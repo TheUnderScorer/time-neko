@@ -1,7 +1,7 @@
 name: Deploy website
 on:
   repository_dispatch:
-    types: [ deploy-website ]
+    types: [deploy-website]
 
 jobs:
   get-data:
@@ -64,10 +64,10 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "NX_ALLOW_PRERELEASES=${{ secrets.ALLOW_PRERELEASES }}" >> .env
-          echo "NX_API_URL=${{ secrets.API_URL }}" >> .env
-          echo "NX_APP_URL=${{ secrets.APP_URL }}" >> .env
-          echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> .env
+          echo "NX_ALLOW_PRERELEASES=${{ secrets.ALLOW_PRERELEASES }}" >> apps/website/.env
+          echo "NX_API_URL=${{ secrets.API_URL }}" >> apps/website/.env
+          echo "NX_APP_URL=${{ secrets.APP_URL }}" >> apps/website/.env
+          echo "NX_MIXPANEL_ID=${{ secrets.MIXPANEL_ID }}" >> apps/website/.env
 
       - uses: amondnet/vercel-action@v20 #deploy
         name: Deploy to production
@@ -75,7 +75,7 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
-          vercel-args: '--prod' #Optional
+          vercel-args: "--prod" #Optional
           vercel-org-id: ${{ secrets.ORG_ID}} #Required
           vercel-project-id: ${{ secrets.WEBSITE_PROJECT_ID}} #Required
 

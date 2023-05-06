@@ -140,11 +140,11 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "NX_ALLOW_PRERELEASES=true" >> .env
-          echo "NX_API_URL=http://localhost:3000/development" >> .env
-          echo "NX_APP_URL=http://localhost:4202/development" >> .env
-          echo "NX_GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> .env
-          echo "NX_ENABLE_DEBUG=true" >> .env
+          echo "NX_ALLOW_PRERELEASES=true" >> apps/website/.env
+          echo "NX_API_URL=http://localhost:3000/development" >> apps/website/.env
+          echo "NX_APP_URL=http://localhost:4202/development" >> apps/website/.env
+          echo "NX_GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> apps/website/.env
+          echo "NX_ENABLE_DEBUG=true" >> apps/website/.env
 
       - name: Start lambdas
         run: npx nx serve lambdas &
