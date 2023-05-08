@@ -213,3 +213,28 @@ jobs:
           privateRepositoryName: ${{ secrets.REPOSITORY }}
           publicRepositoryName: TheUnderScorer/time-neko
           githubToken: ${{ secrets.GH_ADMIN_TOKEN }}
+
+  copy-release:
+    runs-on: ubuntu-latest
+    needs:
+      - build-electron
+    name: Copy release
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_ADMIN_TOKEN }}
+          fetch-depth: 0
+          repository: ${{ secrets.REPOSITORY }}
+          ref: ${{ github.event.client_payload.github.ref }}
+
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
+
+      - name: Create copy of release in public repository
+        if: ${{ needs.get-data.outputs.tag }}
+        uses: ./.github/actions/copy-release
+        with:
+          tag: ${{ needs.get-data.outputs.tag }}
+          privateRepositoryName: ${{ secrets.REPOSITORY }}
+          publicRepositoryName: TheUnderScorer/time-neko
+          githubToken: ${{ secrets.GH_ADMIN_TOKEN }}

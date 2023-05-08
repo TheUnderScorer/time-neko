@@ -64,7 +64,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm install && npm install --prefix .github/actions
 
       - name: Create .env file
         run: |
