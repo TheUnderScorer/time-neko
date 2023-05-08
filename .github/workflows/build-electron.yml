@@ -204,3 +204,12 @@ jobs:
           TAG_NAME: ${{ needs.get-data.outputs.tag }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+
+      - name: Create copy of release in public repository
+        if: ${{ needs.get-data.outputs.tag }}
+        uses: ./.github/actions/copy-release
+        with:
+          tag: ${{ needs.get-data.outputs.tag }}
+          privateRepositoryName: ${{ secrets.REPOSITORY }}
+          publicRepositoryName: TheUnderScorer/time-neko
+          githubToken: ${{ secrets.GH_ADMIN_TOKEN }}

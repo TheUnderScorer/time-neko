@@ -102,3 +102,12 @@ jobs:
           tag: ${{ needs.get-data.outputs.tag }}
           overwrite: false
           repo_name: ${{ secrets.REPOSITORY }}
+
+      - name: Create copy of release in public repository
+        if: ${{ needs.get-data.outputs.tag }}
+        uses: ./.github/actions/copy-release
+        with:
+          tag: ${{ needs.get-data.outputs.tag }}
+          privateRepositoryName: ${{ secrets.REPOSITORY }}
+          publicRepositoryName: TheUnderScorer/time-neko
+          githubToken: ${{ secrets.GH_ADMIN_TOKEN }}
