@@ -1,7 +1,7 @@
-name: Tests
+name: Test & release
 on:
   repository_dispatch:
-    types: [test]
+    types: [testAndRelease]
 env:
   NX_BRANCH: ${{ github.event.client_payload.number || github.event.client_payload.ref }}
 jobs:
@@ -510,6 +510,7 @@ jobs:
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   release-electron:
+    name: Release electron
     needs:
       - e2e-electron
       - units
@@ -521,6 +522,7 @@ jobs:
           project: electron
 
   release-web-app:
+    name: Release web app
     runs-on: ubuntu-latest
     needs:
       - e2e-web-app
@@ -532,6 +534,7 @@ jobs:
           project: web-app
 
   release-browser-extension:
+    name: Release browser extension
     runs-on: ubuntu-latest
     needs:
       - e2e-browser-extension
@@ -543,6 +546,7 @@ jobs:
           project: browser-extension
 
   release-website:
+    name: Release website
     runs-on: ubuntu-latest
     needs:
         - e2e-website
@@ -554,6 +558,7 @@ jobs:
           project: website
 
   release-lambdas:
+    name: Release lambdas
     runs-on: ubuntu-latest
     needs:
         - units
