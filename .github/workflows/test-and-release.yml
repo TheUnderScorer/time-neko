@@ -57,10 +57,12 @@ jobs:
           echo "NX_ENABLE_DEBUG=true" >> .env
 
       - name: Lint
-        run: npx nx affected --target=lint --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        #run: npx nx affected --target=lint --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        run: npx nx run-many --target=lint
 
       - name: Test
-        run: npx nx affected --target=test --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        #run: npx nx affected --target=test --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
+        run: npx nx run-many --target=test
         env:
           NX_SHORT_BREAK_DURATION_SECONDS: 5
           NX_LONG_BREAK_DURATION_SECONDS: 15
@@ -158,7 +160,8 @@ jobs:
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,browser-extension-e2e,web-app-e2e
+          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,browser-extension-e2e,web-app-e2e
+          run: npx nx run website-e2e:e2e
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -233,7 +236,8 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,web-app-e2e
+          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,web-app-e2e
+          run: npx nx run browser-extension-e2e:e2e
 
       - name: Upload Artifact
         if: always()
@@ -327,7 +331,8 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,browser-extension-e2e
+          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,browser-extension-e2e
+          run: npx nx run web-app-e2e:e2e
 
       - uses: actions/upload-artifact@v3
         if: always()
@@ -450,7 +455,8 @@ jobs:
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
 
       - name: Package
-        run: npx nx affected -t make --base=origin/main~1 --skip-nx-cache
+        #run: npx nx affected -t make --base=origin/main~1 --skip-nx-cache
+        run: npx nx run electron:make
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
@@ -468,7 +474,8 @@ jobs:
           # Error dialogs cause CI to run forever
           NX_SKIP_ERROR_DIALOG: true
         with:
-          run: npx nx affected -t e2e --base=origin/main~1 --exclude=web-app-e2e,website-e2e,browser-extension-e2e
+          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=web-app-e2e,website-e2e,browser-extension-e2e
+          run: npx nx run electron-e2e:e2e
 
       - name: Upload Artifact
         if: always()
