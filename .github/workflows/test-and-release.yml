@@ -519,7 +519,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: release
-        uses: ./.github/workflows/release.yml
+        uses: .github/workflows/release.yml
         with:
           project: electron
 
@@ -533,7 +533,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: release
-        uses: ./.github/workflows/release.yml
+        uses: .github/workflows/release.yml
         with:
           project: web-app
 
@@ -547,7 +547,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: release
-        uses: ./.github/workflows/release.yml
+        uses: .github/workflows/release.yml
         with:
           project: browser-extension
 
@@ -561,7 +561,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: release
-        uses: ./.github/workflows/release.yml
+        uses: .github/workflows/release.yml
         with:
           project: website
 
@@ -574,7 +574,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: release
-        uses: ./.github/workflows/release.yml
+        uses: .github/workflows/release.yml
         with:
           project: lambdas
 
