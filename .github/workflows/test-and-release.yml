@@ -517,7 +517,7 @@ jobs:
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   release-electron:
-    name: Release browser extension
+    name: Release electron
     secrets: inherit
     uses: ./.github/workflows/release.yml
     with:
@@ -554,6 +554,7 @@ jobs:
       project: website
     needs:
       - units
+      - e2e-website
 
   release-lambdas:
     name: Release lambdas
