@@ -12,13 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Commit Type
-        uses: gsactions/commit-message-checker@v1
-        with:
-          pattern: '^((?!skip ci).)*$'
-          flags: 's'
-          error: 'Skipping for release commit.'
-
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ADMIN_TOKEN }}
