@@ -516,10 +516,13 @@ jobs:
       - units
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: release
         uses: ./.github/workflows/release.yml
         with:
           project: electron
+        secrets: inherit
 
   release-web-app:
     name: Release web app
@@ -528,8 +531,11 @@ jobs:
       - e2e-web-app
       - units
     steps:
+      - uses: actions/checkout@v3
+
       - name: release
         uses: ./.github/workflows/release.yml
+        secrets: inherit
         with:
           project: web-app
 
@@ -540,8 +546,11 @@ jobs:
       - e2e-browser-extension
       - units
     steps:
+      - uses: actions/checkout@v3
+
       - name: release
         uses: ./.github/workflows/release.yml
+        secrets: inherit
         with:
           project: browser-extension
 
@@ -552,8 +561,11 @@ jobs:
         - e2e-website
         - units
     steps:
+      - uses: actions/checkout@v3
+
       - name: release
         uses: ./.github/workflows/release.yml
+        secrets: inherit
         with:
           project: website
 
@@ -563,8 +575,11 @@ jobs:
     needs:
         - units
     steps:
+      - uses: actions/checkout@v3
+
       - name: release
         uses: ./.github/workflows/release.yml
+        secrets: inherit
         with:
           project: lambdas
 
