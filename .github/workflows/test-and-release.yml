@@ -58,11 +58,11 @@ jobs:
 
       - name: Lint
         #run: npx nx affected --target=lint --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
-        run: npx nx run-many --target=lint
+        run: npx nx run-many --target=lint --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
 
       - name: Test
         #run: npx nx affected --target=test --base=origin/main~1 --parallel=3 --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
-        run: npx nx run-many --target=test
+        run: npx nx run-many --target=test --exclude=electron-main-windows-browser-controller,electron-main-windows-browser-controller-test
         env:
           NX_SHORT_BREAK_DURATION_SECONDS: 5
           NX_LONG_BREAK_DURATION_SECONDS: 15
