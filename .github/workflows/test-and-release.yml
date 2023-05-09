@@ -510,71 +510,49 @@ jobs:
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   release-electron:
-    name: Release electron
+    name: Release browser extension
+    secrets: inherit
+    uses: .github/workflows/release.yml
+    with:
+      project: electron
     needs:
-      - e2e-electron
       - units
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: release
-        uses: .github/workflows/release.yml
-        with:
-          project: electron
+      - e2e-electron
 
   release-web-app:
     name: Release web app
-    runs-on: ubuntu-latest
+    secrets: inherit
+    uses: .github/workflows/release.yml
+    with:
+      project: web-app
     needs:
-      - e2e-web-app
       - units
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: release
-        uses: .github/workflows/release.yml
-        with:
-          project: web-app
+      - e2e-web-app
 
   release-browser-extension:
     name: Release browser extension
-    runs-on: ubuntu-latest
+    secrets: inherit
+    uses: .github/workflows/release.yml
+    with:
+      project: browser-extension
     needs:
-      - e2e-browser-extension
       - units
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: release
-        uses: .github/workflows/release.yml
-        with:
-          project: browser-extension
+      - e2e-browser-extension
 
   release-website:
     name: Release website
-    runs-on: ubuntu-latest
+    secrets: inherit
+    uses: .github/workflows/release.yml
+    with:
+      project: website
     needs:
-        - e2e-website
-        - units
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: release
-        uses: .github/workflows/release.yml
-        with:
-          project: website
+      - units
 
   release-lambdas:
     name: Release lambdas
-    runs-on: ubuntu-latest
+    secrets: inherit
+    uses: .github/workflows/release.yml
+    with:
+      project: lambdas
     needs:
         - units
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: release
-        uses: .github/workflows/release.yml
-        with:
-          project: lambdas
-
