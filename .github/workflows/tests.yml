@@ -508,3 +508,58 @@ jobs:
           repo: ${{ secrets.REPOSITORY }}
           check_id: ${{ github.event.client_payload[env.CHECK_ID_KEY] }}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+
+  release-electron:
+    needs:
+      - e2e-electron
+      - units
+    runs-on: ubuntu-latest
+    steps:
+      - name: release
+        uses: ./.github/workflows/release.yml
+        with:
+          project: electron
+
+  release-web-app:
+    runs-on: ubuntu-latest
+    needs:
+      - e2e-web-app
+      - units
+    steps:
+      - name: release
+        uses: ./.github/workflows/release.yml
+        with:
+          project: web-app
+
+  release-browser-extension:
+    runs-on: ubuntu-latest
+    needs:
+      - e2e-browser-extension
+      - units
+    steps:
+      - name: release
+        uses: ./.github/workflows/release.yml
+        with:
+          project: browser-extension
+
+  release-website:
+    runs-on: ubuntu-latest
+    needs:
+        - e2e-website
+        - units
+    steps:
+      - name: release
+        uses: ./.github/workflows/release.yml
+        with:
+          project: website
+
+  release-lambdas:
+    runs-on: ubuntu-latest
+    needs:
+        - units
+    steps:
+      - name: release
+        uses: ./.github/workflows/release.yml
+        with:
+          project: lambdas
+
