@@ -460,20 +460,28 @@ jobs:
 
       - name: Get npm cache directory
         if: ${{ matrix.os != 'windows-latest' }}
-        id: npm-cache-dir
+        id: npm-cache-dir-linux
         run: |
           echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
       - name: Get npm cache directory
         if: ${{ matrix.os == 'windows-latest' }}
-        id: npm-cache-dir
+        id: npm-cache-dir-win
         shell: pwsh
         run: echo "dir=$(npm config get cache)" >> ${env:GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
-        id: npm-cache
+        if: ${{ matrix.os != 'windows-latest' }}
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          path: ${{ steps.npm-cache-dir-linux.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - uses: actions/cache@v3
+        if: ${{ matrix.os == 'windows-latest' }}
+        with:
+          path: ${{ steps.npm-cache-dir-win.outputs.dir }}
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
