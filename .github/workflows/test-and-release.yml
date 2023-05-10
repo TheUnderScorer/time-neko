@@ -474,17 +474,17 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         with:
           path: ${{ steps.npm-cache-dir-linux.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-electron-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-electron-node-
 
       - uses: actions/cache@v3
         if: ${{ matrix.os == 'windows-latest' }}
         with:
           path: ${{ steps.npm-cache-dir-win.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-electron-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-electron-node-
 
       - name: Install dependencies
         run: npm install
