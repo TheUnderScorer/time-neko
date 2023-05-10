@@ -45,7 +45,6 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install npm dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Prerelease
