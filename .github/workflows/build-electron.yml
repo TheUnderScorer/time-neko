@@ -107,6 +107,11 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
 
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+
       - uses: actions/cache@v3
         id: npm-cache
         with:

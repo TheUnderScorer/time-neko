@@ -39,6 +39,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+
       - uses: actions/cache@v3
         id: npm-cache
         with:
@@ -123,6 +128,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -215,6 +225,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 20
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -315,6 +330,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 20
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -437,6 +457,11 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./cert.pem
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
+
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
 
       - uses: actions/cache@v3
         id: npm-cache
