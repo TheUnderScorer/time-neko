@@ -18,15 +18,6 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
-          persist-credentials: false
-
-      - name: Configure CI Git User
-        run: |
-          git config --global user.name 'TheUnderScorer'
-          git config --global user.email 'przemyslawzydek@gmail.com'
-          git remote set-url origin https://TheUnderScorer:$GITHUB_TOKEN@github.com/TheUnderScorer/time-neko-app
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
 
       - name: Install Node.js
         uses: actions/setup-node@v1
