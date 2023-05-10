@@ -151,8 +151,8 @@ jobs:
       - name: Create .env file
         run: |
           echo "NX_ALLOW_PRERELEASES=true" >> apps/website/.env
-          echo "NX_API_URL=http://localhost:3000/development" >> apps/website/.env
-          echo "NX_APP_URL=http://localhost:4202/development" >> apps/website/.env
+          echo "NX_API_URL=http://localhost:9001" >> apps/website/.env
+          echo "NX_APP_URL=http://localhost:9000" >> apps/website/.env
           echo "NX_GITHUB_TOKEN=${{ secrets.GH_ADMIN_TOKEN }}" >> apps/website/.env
           echo "NX_ENABLE_DEBUG=true" >> apps/website/.env
 
