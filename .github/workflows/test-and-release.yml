@@ -578,51 +578,13 @@ jobs:
           check_id: ${{ github.event.client_payload[env.CHECK_ID_KEY] }}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
-  release-electron:
-    name: Release electron
+  release:
+    name: Release
     secrets: inherit
     uses: ./.github/workflows/release.yml
-    with:
-      project: electron
-    needs:
-      - units
-      - e2e-electron
-
-  release-web-app:
-    name: Release web app
-    secrets: inherit
-    uses: ./.github/workflows/release.yml
-    with:
-      project: web-app
-    needs:
-      - units
-      - e2e-web-app
-
-  release-browser-extension:
-    name: Release browser extension
-    secrets: inherit
-    uses: ./.github/workflows/release.yml
-    with:
-      project: browser-extension
-    needs:
-      - units
-      - e2e-browser-extension
-
-  release-website:
-    name: Release website
-    secrets: inherit
-    uses: ./.github/workflows/release.yml
-    with:
-      project: website
-    needs:
-      - units
-      - e2e-website
-
-  release-lambdas:
-    name: Release lambdas
-    secrets: inherit
-    uses: ./.github/workflows/release.yml
-    with:
-      project: lambdas
     needs:
         - units
+        - e2e-website
+        - e2e-browser-extension
+        - e2e-web-app
+        - e2e-electron
