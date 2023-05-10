@@ -107,16 +107,15 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
 
-      - name: Cache
-        id: "npm-cache"
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
+        id: npm-cache
         with:
-          path: node_modules
-          key: nodemodules-${{ matrix.os }}-${{ matrix.arch }}-build-electron-${{ hashFiles('package-lock.json') }}
-          restore-keys: nodemodules-${{ matrix.os }}-${{ matrix.arch }}-build-electron
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install npm dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Install other dependencies

@@ -48,7 +48,6 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install npm dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install && npm install @swc/core-linux-x64-gnu
 
       - name: Create .env file
@@ -125,16 +124,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         id: npm-cache
         with:
-          path: node_modules
-          key: nodemodules-e2e-website-${{ matrix.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: nodemodules-e2e-website-${{ matrix.os }}-
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Setup playwright and serverless
@@ -217,6 +215,14 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 20
+
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm install
@@ -309,6 +315,14 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 20
+
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm install
@@ -423,6 +437,14 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./cert.pem
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
+
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
         run: npm install

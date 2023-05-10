@@ -69,12 +69,13 @@ jobs:
         with:
           node-version: 20
 
-      - name: Cache
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
+        id: npm-cache
         with:
-          path: node_modules
-          key: nodemodules-${{ hashFiles('package-lock.json') }}
-          restore-keys: nodemodules-
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - run: npm install
 
