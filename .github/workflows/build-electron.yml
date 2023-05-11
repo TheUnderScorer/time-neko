@@ -191,15 +191,9 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
-      - name: Set up Docker Buildx
-        if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
-
       - name: Pack linux arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
-        run: docker compose up packager-arm64-linux
+        run: npm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=linux --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
