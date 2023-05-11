@@ -62,7 +62,7 @@ jobs:
           - { os: macos-latest, arch: arm64 }
           - { os: windows-latest, arch: arm64 }
           - { os: macos-arm64, arch: x64 }
-    runs-on: ${{ matrix.os === 'ubuntu-latest && matrix.arch === 'arm64 && 'macos-arm64' || matrix.os }}
+    runs-on: ${{ matrix.os == 'ubuntu-latest && matrix.arch == 'arm64 && 'macos-arm64' || matrix.os }}
     steps:
       - name: Check actor
         run: "echo Actor: ${{ env.GITHUB_ACTOR }}"
