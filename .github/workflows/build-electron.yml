@@ -228,6 +228,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-electron
+      - get-data
     name: Copy release
     steps:
       - uses: actions/checkout@v3
