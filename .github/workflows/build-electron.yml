@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
-      - name: Set Node.js 16.x
+      - name: Set Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 20
@@ -62,11 +62,10 @@ jobs:
           - { os: macos-latest, arch: arm64 }
           - { os: windows-latest, arch: arm64 }
           - { os: macos-arm64, arch: x64 }
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os === 'ubuntu-latest && matrix.arch === 'arm64 && "macos-arm64" || matrix.os }}
     steps:
       - name: Check actor
-        if: ${{ matrix.os == 'macos-arm64' && env.GITHUB_ACTOR == 'TheUnderScorer' }}
-        run: exit 1
+        run: "echo Actor: ${{ env.GITHUB_ACTOR }}"
 
       - uses: actions/checkout@v3
         with:
@@ -75,10 +74,10 @@ jobs:
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
 
-      - name: Set Node.js 16.x
+      - name: Set Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 19
 
       - name: Setup keychain
         if: ${{ matrix.os == 'macos-latest' && matrix.arch == 'x64' }}
@@ -150,14 +149,13 @@ jobs:
       - name: Build tools
         run: npm run build:tools
 
-        # Special build with arch -arm64 prefix on macos-arm64 macbook pro
-      - name: Build deps (arm64 macos)
-        if: ${{ matrix.os == 'macos-arm64' }}
-        run: arch -arm64 npm run rebuild:arm64
+      - name: Build deps (arm64)
+        if: ${{ matrix.arch == 'arm64' }}
+        run: npm run rebuild:arm64
 
-      - name: Setup ubuntu deps
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64' }}
-        run: sudo apt-get install --no-install-recommends -y libc6-dev-arm64-cross linux-libc-dev-arm64-cross g++-aarch64-linux-gnu
+      #- name: Setup ubuntu deps
+      #  if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64' }}
+      #  run: sudo apt-get install --no-install-recommends -y libc6-dev-arm64-cross linux-libc-dev-arm64-cross g++-aarch64-linux-gnu
 
       - name: Create .env file
         run: |
@@ -179,7 +177,7 @@ jobs:
 
       - name: Pack mac arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'macos-arm64' }}
-        run: arch -arm64 npx nx run electron:make --skip-nx-cache
+        run: npx nx run electron:make --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -191,15 +189,15 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
-      - name: Set up Docker Buildx
-        if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
+      #- name: Set up Docker Buildx
+      #  if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
+      #  uses: crazy-max/ghaction-docker-buildx@v1
+      #  with:
+      #    version: latest
 
       - name: Pack linux arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
-        run: docker compose up packager-arm64-linux
+        run: npx nx run electron:make --arch=arm64 --platform=linux --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
@@ -211,7 +209,7 @@ jobs:
 
       - name: Pack windows arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'windows-latest' }}
-        run: npm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=win32 --skip-nx-cache
+        run: npx nx run electron:make --arch=arm64 --platform=win32 --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
