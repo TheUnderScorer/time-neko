@@ -108,12 +108,6 @@ jobs:
 
       - name: Get npm cache directory
         if: ${{ matrix.os != 'windows-latest' }}
-        id: npm-cache-dir
-        run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-
-      - name: Get npm cache directory
-        if: ${{ matrix.os != 'windows-latest' }}
         id: npm-cache-dir-linux
         run: |
           echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
