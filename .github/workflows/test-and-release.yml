@@ -7,7 +7,7 @@ env:
 jobs:
   units:
     name: Unit tests & linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -89,7 +89,7 @@ jobs:
 
   e2e-website:
     name: Website e2e tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -192,7 +192,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
+        os: ["ubuntu-22.04"]
     name: Browser Extension e2e tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -298,7 +298,7 @@ jobs:
 
   e2e-web-app:
     name: Web App e2e tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v3
@@ -395,7 +395,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-22.04, windows-latest]
     name: Electron e2e tests
     runs-on: ${{ matrix.os }}
     env:
