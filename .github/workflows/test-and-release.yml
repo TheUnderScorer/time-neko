@@ -168,7 +168,6 @@ jobs:
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
         with:
-          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,browser-extension-e2e,web-app-e2e
           run: npx nx run website-e2e:e2e
 
       - uses: actions/upload-artifact@v3
@@ -186,115 +185,6 @@ jobs:
           status: "completed"
           repo: ${{ secrets.REPOSITORY }}
           check_id: ${{github.event.client_payload.e2e_website_check_id}}
-          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
-
-  e2e-browser-extension:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest"]
-    name: Browser Extension e2e tests
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_ADMIN_TOKEN }}
-          fetch-depth: 0
-          repository: ${{ secrets.REPOSITORY }}
-          ref: ${{ github.event.client_payload.github.ref }}
-
-      - name: Create GitHub App Installation Token
-        uses: jnwng/github-app-installation-token-action@v2
-        id: installation_token
-        with:
-          appId: ${{ secrets.GH_APP_ID }}
-          installationId: ${{ secrets.GH_APP_INSTALLATION_ID }}
-          privateKey: ${{ secrets.GH_APP_PRIVATE_KEY }}
-
-      - uses: LouisBrunner/checks-action@v1.1.1
-        if: always()
-        with:
-          check_id: ${{github.event.client_payload.e2e_browser_extension_check_id}}
-          token: ${{ steps.installation_token.outputs.token }}
-          sha: ${{github.event.client_payload.github.sha}}
-          status: "in_progress"
-          repo: ${{ secrets.REPOSITORY }}
-          details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}
-
-      - name: Set Node.js 16.x
-        uses: actions/setup-node@v2
-        with:
-          node-version: 20
-
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v3
-        id: npm-cache
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Setup playwright
-        run: npx playwright install-deps && npx playwright install
-
-      - name: Create .env file
-        run: |
-          echo "NX_TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> .env
-          echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> .env
-          echo "NX_NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" >> .env
-          echo "NX_ENABLE_DEBUG=true" >> .env
-
-      - name: Build extension
-        run: npx nx build browser-extension --production --skip-nx-cache
-
-      - name: Run headless test
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,web-app-e2e
-          run: npx nx run browser-extension-e2e:e2e
-
-      - name: Upload Artifact
-        if: always()
-        uses: actions/upload-artifact@v1
-        with:
-          name: browser-extension
-          path: dist/apps/browser-extension
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: test-artifact-${{ matrix.os }}-browser-extension
-          path: apps/browser-extension-e2e/src/artifacts
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: browser-contexts
-          path: apps/browser-extension-e2e/src/contexts/**/chrome_debug.log
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ failure() }}
-        with:
-          name: trace-${{ matrix.os }}-browser-extension
-          path: test-results
-
-      - uses: LouisBrunner/checks-action@v1.1.1
-        if: always()
-        with:
-          token: ${{ steps.installation_token.outputs.token }}
-          sha: ${{github.event.client_payload.github.sha}}
-          conclusion: ${{ job.status }}
-          status: "completed"
-          repo: ${{ secrets.REPOSITORY }}
-          check_id: ${{github.event.client_payload.e2e_browser_extension_check_id}}
           details_url: ${{ github.server_url }}/TheUnderScorer/time-neko/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
   e2e-web-app:
@@ -367,7 +257,6 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1
         with:
-          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=electron-e2e,website-e2e,browser-extension-e2e
           run: npx nx run web-app-e2e:e2e
 
       - uses: actions/upload-artifact@v3
@@ -540,7 +429,6 @@ jobs:
           # Error dialogs cause CI to run forever
           NX_SKIP_ERROR_DIALOG: true
         with:
-          #run: npx nx affected -t e2e --base=origin/main~1 --exclude=web-app-e2e,website-e2e,browser-extension-e2e
           run: npx nx run electron-e2e:e2e
 
       - name: Upload Artifact
@@ -589,6 +477,5 @@ jobs:
     needs:
         - units
         - e2e-website
-        - e2e-browser-extension
         - e2e-web-app
         - e2e-electron
