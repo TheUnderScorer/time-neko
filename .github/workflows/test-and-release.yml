@@ -518,6 +518,7 @@ jobs:
           echo "NX_ENABLE_DEBUG=true" >> .env
           echo "NX_TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> apps/electron/main/.env
           echo "NX_NOTION_TOKEN=${{ secrets.NOTION_TOKEN }}" >> apps/electron/main/.env
+          echo "NX_NOTION_AUTH_URL=${{ secrets.NOTION_AUTH_URL }}" >> apps/electron/main/.env
 
       - name: Package
         #run: npx nx affected -t make --base=origin/main~1 --skip-nx-cache
