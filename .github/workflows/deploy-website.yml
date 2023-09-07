@@ -23,8 +23,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm dependencies
-        run: pnpm install --prefix .github/actions
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
 
       - name: Get tag
         id: get_tag

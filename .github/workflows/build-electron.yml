@@ -24,8 +24,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm dependencies
-        run: pnpm install --prefix .github/actions
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
 
       - name: Get tag
         id: get_tag
@@ -108,23 +108,23 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
 
-      - name: Get pnpm cache directory
+      - name: Get npm cache directory
         if: ${{ matrix.os != 'windows-latest' }}
         id: npm-cache-dir
         run: |
-          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-      - name: Get pnpm cache directory
+      - name: Get npm cache directory
         if: ${{ matrix.os != 'windows-latest' }}
         id: npm-cache-dir-linux
         run: |
-          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-      - name: Get pnpm cache directory
+      - name: Get npm cache directory
         if: ${{ matrix.os == 'windows-latest' }}
         id: npm-cache-dir-win
         shell: pwsh
-        run: echo "dir=$(pnpm store path)" >> ${env:GITHUB_OUTPUT}
+        run: echo "dir=$(npm config get cache)" >> ${env:GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         if: ${{ matrix.os != 'windows-latest' }}
@@ -142,19 +142,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install pnpm dependencies
-        run: pnpm install
+      - name: Install npm dependencies
+        run: npm install
 
       - name: Install other dependencies
-        run: pnpm run preinstall && pnpm install --prefix .github/actions
+        run: npm run preinstall && npm install --prefix .github/actions
 
       - name: Build tools
-        run: pnpm run build:tools
+        run: npm run build:tools
 
         # Special build with arch -arm64 prefix on macos-arm64 macbook pro
       - name: Build deps (arm64 macos)
         if: ${{ matrix.os == 'macos-arm64' }}
-        run: arch -arm64 pnpm run rebuild:arm64
+        run: arch -arm64 npm run rebuild:arm64
 
       - name: Setup ubuntu deps
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64' }}
@@ -195,7 +195,7 @@ jobs:
 
       - name: Pack linux arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'ubuntu-latest' }}
-        run: pnpm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=linux --skip-nx-cache
+        run: npm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=linux --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
@@ -207,7 +207,7 @@ jobs:
 
       - name: Pack windows arm64
         if: ${{ matrix.arch == 'arm64' && matrix.os == 'windows-latest' }}
-        run: pnpm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=win32 --skip-nx-cache
+        run: npm run rebuild:arm64 && npx nx run electron:make --arch=arm64 --platform=win32 --skip-nx-cache
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }}
 
@@ -240,8 +240,8 @@ jobs:
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
 
-      - name: Install pnpm dependencies
-        run: pnpm install --prefix .github/actions
+      - name: Install npm dependencies
+        run: npm install --prefix .github/actions
 
       - name: Create copy of release in public repository
         if: ${{ needs.get-data.outputs.tag }}
