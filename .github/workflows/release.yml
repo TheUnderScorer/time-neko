@@ -20,6 +20,8 @@ jobs:
         with:
           node-version: 20
 
+      - uses: pnpm/action-setup@v2
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
