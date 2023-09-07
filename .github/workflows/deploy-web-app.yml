@@ -19,12 +19,10 @@ jobs:
           repository: ${{ secrets.REPOSITORY }}
           ref: ${{ github.event.client_payload.github.ref }}
 
-      - name: Setup Node.js
+      - name: Set Node.js 16.x
         uses: actions/setup-node@v2
         with:
           node-version: 20
-
-      - uses: pnpm/action-setup@v2
 
       - name: Install pnpm dependencies
         run: pnpm install --prefix .github/actions
