@@ -24,8 +24,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install npm dependencies
-        run: npm install --prefix .github/actions
+      - name: Install pnpm dependencies
+        run: pnpm install --prefix .github/actions
 
       - name: Get tag
         id: get_tag
@@ -63,10 +63,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         id: npm-cache-dir
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -77,7 +77,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install && npm install --prefix .github/actions
+        run: pnpm install && pnpm install --prefix .github/actions
 
       - name: Create .env file
         run: |

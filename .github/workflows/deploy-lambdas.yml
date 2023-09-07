@@ -23,8 +23,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install npm dependencies
-        run: npm install --prefix .github/actions
+      - name: Install pnpm dependencies
+        run: pnpm install --prefix .github/actions
 
       - name: Get tag
         id: get_tag
@@ -69,10 +69,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         id: npm-cache-dir
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -82,7 +82,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm install
+      - run: pnpm install
 
       - name: serverless deploy
         run: npx nx run lambdas:deploy:${{ needs.get-data.outputs.env }}

@@ -39,10 +39,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         id: npm-cache-dir
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -52,8 +52,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install npm dependencies
-        run: npm install && npm install @swc/core-linux-x64-gnu
+      - name: Install pnpm dependencies
+        run: pnpm install && pnpm install @swc/core-linux-x64-gnu
 
       - name: Create .env file
         run: |
@@ -129,10 +129,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         id: npm-cache-dir
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -143,10 +143,10 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Setup playwright and serverless
-        run: npx playwright install-deps && npm i serverless@3 -g && npx playwright install
+        run: npx playwright install-deps && pnpm i serverless@3 -g && npx playwright install
 
       - name: Create .env file
         run: |
@@ -222,10 +222,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         id: npm-cache-dir
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         id: npm-cache
@@ -236,7 +236,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Setup playwright
         run: npx playwright install-deps && npx playwright install
@@ -350,17 +350,17 @@ jobs:
           sudo security add-trusted-cert -d -r trustRoot -k $KEYCHAIN_PATH ./installer_cert.pem
           security find-identity -p codesigning
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         if: ${{ matrix.os != 'windows-latest' }}
         id: npm-cache-dir-linux
         run: |
-          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+          echo "dir=$(pnpm store path)" >> ${GITHUB_OUTPUT}
 
-      - name: Get npm cache directory
+      - name: Get pnpm cache directory
         if: ${{ matrix.os == 'windows-latest' }}
         id: npm-cache-dir-win
         shell: pwsh
-        run: echo "dir=$(npm config get cache)" >> ${env:GITHUB_OUTPUT}
+        run: echo "dir=$(pnpm store path)" >> ${env:GITHUB_OUTPUT}
 
       - uses: actions/cache@v3
         if: ${{ matrix.os != 'windows-latest' }}
@@ -379,24 +379,24 @@ jobs:
             ${{ runner.os }}-electron-node-
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Check appdmg
         if: ${{ matrix.os == 'macos-latest' }}
-        run: npm ls appdmg
+        run: pnpm ls appdmg
 
       - name: Setup electron deps
-        run: npm run electron-install-deps
+        run: pnpm run electron-install-deps
 
       - name: Setup github actions
         working-directory: .github/actions
-        run: npm install
+        run: pnpm install
 
       - name: Setup playwright and actions
         run: npx playwright install-deps && npx playwright install
 
       - name: Build tools
-        run: npm run build:tools
+        run: pnpm run build:tools
 
       - name: Create .env file
         run: |
