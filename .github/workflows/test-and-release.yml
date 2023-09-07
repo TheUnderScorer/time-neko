@@ -394,7 +394,7 @@ jobs:
         run: pnpm ls appdmg
 
       - name: Setup electron deps
-        run: npm run electron-install-deps
+        run: pnpm run electron-install-deps
 
       - name: Setup github actions
         working-directory: .github/actions
@@ -404,7 +404,7 @@ jobs:
         run: npx playwright install-deps && npx playwright install
 
       - name: Build tools
-        run: npm run build:tools
+        run: pnpm run build:tools
 
       - name: Create .env file
         run: |
