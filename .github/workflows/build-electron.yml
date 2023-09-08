@@ -151,11 +151,6 @@ jobs:
       - name: Build tools
         run: npm run build:tools
 
-        # Special build with arch -arm64 prefix on macos-arm64 macbook pro
-      - name: Build deps (arm64 macos)
-        if: ${{ matrix.os == 'macos-arm64' }}
-        run: arch -arm64 npm run rebuild:arm64
-
       - name: Setup ubuntu deps
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64' }}
         run: sudo apt-get install --no-install-recommends -y libc6-dev-arm64-cross linux-libc-dev-arm64-cross g++-aarch64-linux-gnu
