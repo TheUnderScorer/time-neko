@@ -249,6 +249,7 @@ jobs:
           echo "NX_DISABLE_SHARED_WORKER=false" >> .env
           echo "NX_WEB_APP_E2E_HEADLESS=true" >> .env
           echo "NX_EXPOSE_WORKER_ON_WINDOW=true" >> .env
+          echo "NX_HIDE_NOTIFICATIONS_PERMISSION_DIALOG=true" >> .env
           echo "NX_API_URL=http://localhost:3000/development" >> .env
           echo "NX_ENABLE_DEBUG=true" >> .env
           echo "NX_DISABLE_ONBOARDING=true" >> .env
